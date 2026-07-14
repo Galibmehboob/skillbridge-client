@@ -3,6 +3,7 @@
 import { Button } from "@heroui/react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 interface ThemeToggleProps {
   className?: string;
@@ -13,11 +14,25 @@ export default function ThemeToggle({
 }: ThemeToggleProps) {
   const { resolvedTheme, setTheme } = useTheme();
 
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsClient(true);
+    }, 0);
+  }, []);
+
+  if (!isClient) return null;
+
   return (
     <Button
       isIconOnly
       onPress={() =>
-        setTheme(resolvedTheme === "dark" ? "light" : "dark")
+        setTheme(
+          resolvedTheme === "dark"
+            ? "light"
+            : "dark"
+        )
       }
       aria-label="Toggle theme"
       className={className}

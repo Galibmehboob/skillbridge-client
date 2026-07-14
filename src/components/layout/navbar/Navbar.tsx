@@ -3,7 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { Button } from "@heroui/react";
+
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  Label,
+} from "@heroui/react";
 import { signOut, useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 
@@ -33,13 +39,14 @@ const handleLogout = async () => {
     await signOut();
 
     toast.success("Logged out successfully");
-   setIsOpen(false);
+    setIsOpen(false);
+    router.push("/login");
+
   } catch (error) {
     toast.error(
       error instanceof Error ? error.message : "Logout failed"
     );
   }
-  router.push("/login");
 };
 
   return (
@@ -66,45 +73,64 @@ const handleLogout = async () => {
           </div>
 
           {/* Desktop Actions */}
-         <div className="hidden items-center gap-3 lg:flex">
+    <div className="hidden items-center gap-3 lg:flex">
   <ThemeToggle />
 
-  {!isPending && (
+  {isPending ? (
     <>
-      {session ? (
-        <>
-          <span className="text-sm font-medium">
-            {session.user.name}
-          </span>
+      <div className="h-10 w-10 animate-pulse rounded-full bg-default-200" />
+      <div className="h-10 w-24 animate-pulse rounded-full bg-default-200" />
+    </>
+  ) : session ? (
+ <Dropdown>
+  <Button
+    isIconOnly
+    variant="outline"
+    className="rounded-full p-0"
+  >
+   <Avatar size="sm">
+  {session.user.name?.charAt(0).toUpperCase()}
+</Avatar>
+  </Button>
 
-          <Button
-            onPress={handleLogout}
-            className="rounded-full px-5"
-          >
-            Logout
-          </Button>
-        </>
-      ) : (
-        <>
-          <Link href="/login">
-            <Button
-              variant="outline"
-              className="rounded-full px-5"
-            >
-              Login
-            </Button>
-          </Link>
+  <Dropdown.Popover>
+    <Dropdown.Menu aria-label="User menu">
+      <Dropdown.Item
+        id="profile"
+        textValue="Profile"
+      >
+        <Label>Profile</Label>
+      </Dropdown.Item>
 
-          <Link href="/register">
-            <Button
-              variant="primary"
-              className="rounded-full px-5"
-            >
-              Register
-            </Button>
-          </Link>
-        </>
-      )}
+      <Dropdown.Item
+        id="logout"
+        textValue="Logout"
+        onAction={handleLogout}
+      >
+        <Label>Logout</Label>
+      </Dropdown.Item>
+    </Dropdown.Menu>
+  </Dropdown.Popover>
+</Dropdown>
+  ) : (
+    <>
+      <Link href="/login">
+        <Button
+          variant="outline"
+          className="rounded-full px-5"
+        >
+          Login
+        </Button>
+      </Link>
+
+      <Link href="/register">
+        <Button
+          variant="primary"
+          className="rounded-full px-5"
+        >
+          Register
+        </Button>
+      </Link>
     </>
   )}
 </div>
@@ -150,51 +176,58 @@ const handleLogout = async () => {
                 <ThemeToggle />
               </div>
 
-             {!isPending && (
+  {isPending ? (
+  <div className="mt-4 space-y-3">
+    <div className="h-10 animate-pulse rounded-xl bg-default-200" />
+    <div className="h-10 animate-pulse rounded-xl bg-default-200" />
+  </div>
+) : session ? (
   <>
-    {session ? (
-      <>
-        <p className="mt-4 text-center text-sm font-medium">
-          {session.user.name}
-        </p>
+    <div className="mt-4 flex flex-col items-center gap-3">
+  <Avatar size="lg">
+  {session.user.name?.charAt(0).toUpperCase()}
+</Avatar>
 
-        <Button
-          variant="primary"
-          className="mt-3 w-full rounded-full"
-          onPress={handleLogout}
-        >
-          Logout
-        </Button>
-      </>
-    ) : (
-      <>
-        <Link
-          href="/login"
-          onClick={closeMenu}
-          className="mt-4"
-        >
-          <Button
-            variant="outline"
-            className="w-full rounded-full"
-          >
-            Login
-          </Button>
-        </Link>
+  <p className="text-sm font-medium">
+    {session.user.name}
+  </p>
+</div>
 
-        <Link
-          href="/register"
-          onClick={closeMenu}
-          className="mt-3"
-        >
-          <Button
-            variant="primary"
-            className="w-full rounded-full"
-          >
-            Register
-          </Button>
-        </Link>
-      </>
-    )}
+    <Button
+      variant="primary"
+      className="mt-3 w-full rounded-full"
+      onPress={handleLogout}
+    >
+      Logout
+    </Button>
+  </>
+) : (
+  <>
+    <Link
+      href="/login"
+      onClick={closeMenu}
+      className="mt-4"
+    >
+      <Button
+        variant="outline"
+        className="w-full rounded-full"
+      >
+        Login
+      </Button>
+    </Link>
+
+    <Link
+      href="/register"
+      onClick={closeMenu}
+      className="mt-3"
+    >
+      <Button
+        variant="primary"
+        className="w-full rounded-full"
+      >
+        Register
+      </Button>
+    </Link>
   </>
 )}
             </div>
