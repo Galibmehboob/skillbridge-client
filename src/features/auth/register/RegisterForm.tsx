@@ -6,10 +6,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@heroui/react";
-
+import { uploadImage } from "@/services/image/uploadImage";
 import Container from "@/components/common/container/Container";
 import { signUp } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Camera } from "lucide-react";
+import { useState } from "react";
 
 const registerSchema = z
   .object({
@@ -35,6 +38,10 @@ const registerSchema = z
       .string()
       .min(1, "Please confirm your password"),
 
+      image: z
+      .any()
+      .optional(),
+
    acceptTerms: z.boolean().refine((value) => value, {
   message: "You must accept the Terms & Conditions",
 }),
@@ -53,24 +60,33 @@ export default function RegisterForm() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-   defaultValues: {
+ defaultValues: {
   fullName: "",
   email: "",
   password: "",
   confirmPassword: "",
+  image: undefined,
   acceptTerms: false,
 },
   });
+  const imageRegister = register("image");
 
   const router = useRouter();
+  const [preview, setPreview] = useState<string>("");
 
- const onSubmit = async (data: RegisterFormValues) => {
+  const onSubmit = async (data: RegisterFormValues) => {
+   let image = "";
   try {
+    
+
+if (data.image?.[0]) {
+  image = await uploadImage(data.image[0]);
+}
    const result = await signUp.email({
   name: data.fullName,
   email: data.email,
   password: data.password,
- 
+  image,
 });
 
 console.log("Result from signup:",result)
@@ -212,6 +228,54 @@ router.push("/");
                   </p>
                 )}
               </div>
+
+   <div className="flex flex-col items-center gap-4">
+  <div className="relative">
+    <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-default-200">
+      {preview ? (
+        <Image
+          src={preview}
+          alt="Preview"
+          width={112}
+          height={112}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center bg-default-100 text-3xl font-bold">
+          ?
+        </div>
+      )}
+    </div>
+
+    <label
+      htmlFor="image"
+      className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-lg"
+    >
+      <Camera size={18} />
+    </label>
+
+    <input
+      id="image"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      {...imageRegister}
+      onChange={(e) => {
+        imageRegister.onChange(e);
+
+        const file = e.target.files?.[0];
+
+        if (file) {
+          setPreview(URL.createObjectURL(file));
+        }
+      }}
+    />
+  </div>
+
+  <p className="text-sm text-foreground/60">
+    Upload Profile Photo
+  </p>
+</div>
 
               <div>
                 <label className="flex items-start gap-3 text-sm">
