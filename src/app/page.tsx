@@ -14,7 +14,7 @@ export default function Home() {
    <>
    
     <>
-      <Navbar/>
+      
       <main>
         <Hero/>
         <FeaturedSkills />
@@ -24,7 +24,7 @@ export default function Home() {
         <Testimonials/>
         <CTA/>
       </main>
-      <Footer/>
+    
     </>
    </>
   );
