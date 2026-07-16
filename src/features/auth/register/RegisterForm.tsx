@@ -38,13 +38,13 @@ const registerSchema = z
       .string()
       .min(1, "Please confirm your password"),
 
-      image: z
+    image: z
       .any()
       .optional(),
 
-   acceptTerms: z.boolean().refine((value) => value, {
-  message: "You must accept the Terms & Conditions",
-}),
+    acceptTerms: z.boolean().refine((value) => value, {
+      message: "You must accept the Terms & Conditions",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
@@ -60,14 +60,14 @@ export default function RegisterForm() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
- defaultValues: {
-  fullName: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  image: undefined,
-  acceptTerms: false,
-},
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      image: undefined,
+      acceptTerms: false,
+    },
   });
   const imageRegister = register("image");
 
@@ -75,47 +75,46 @@ export default function RegisterForm() {
   const [preview, setPreview] = useState<string>("");
 
   const onSubmit = async (data: RegisterFormValues) => {
-   let image = "";
-  try {
-    
+    let image = "";
+    try {
+      if (data.image?.[0]) {
+        image = await uploadImage(data.image[0]);
+      }
+      const result = await signUp.email({
+        name: data.fullName,
+        email: data.email,
+        password: data.password,
+        image,
+      });
 
-if (data.image?.[0]) {
-  image = await uploadImage(data.image[0]);
-}
-   const result = await signUp.email({
-  name: data.fullName,
-  email: data.email,
-  password: data.password,
-  image,
-});
+      console.log("Result from signup:", result)
 
-console.log("Result from signup:",result)
+      if (result.error) {
+        toast.error(result.error.message);
+        return;
+      }
 
-    if (result.error) {
-      toast.error(result.error.message);
-      return;
+      toast.success("Registration successful");
+
+      router.push("/");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Registration failed"
+      );
     }
-
-    
-toast.success("Registration successful");
-
-router.push("/");
-  } catch (error) {
-    toast.error(
-      error instanceof Error ? error.message : "Registration failed"
-    );
-  }
-
-  
-};
+  };
 
   return (
-    <section className="py-16 sm:py-20">
+    <section className="relative overflow-hidden py-16 sm:py-20">
+      {/* Decorative premium color background ambient blurs */}
+      <div className="absolute top-1/4 left-1/4 -z-10 h-72 w-72 rounded-full bg-[#1E3A8A]/10 blur-[80px]" />
+      <div className="absolute bottom-1/4 right-1/4 -z-10 h-72 w-72 rounded-full bg-[#14B8A6]/10 blur-[80px]" />
+
       <Container>
         <div className="flex min-h-[70vh] items-center justify-center">
-          <div className="w-full max-w-md rounded-3xl border border-default-200 bg-background/70 p-8 shadow-2xl backdrop-blur-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-background/60 p-8 shadow-[0_25px_50px_-12px_rgba(30,58,138,0.25)] backdrop-blur-2xl transition-all duration-300 hover:border-white/20">
             <div className="text-center">
-              <h1 className="text-3xl font-bold tracking-tight">
+              <h1 className="bg-gradient-to-r from-[#1E3A8A] via-[#14B8A6] to-[#F59E0B] bg-clip-text text-3xl font-bold tracking-tight text-transparent">
                 Create Account
               </h1>
 
@@ -129,10 +128,58 @@ router.push("/");
               noValidate
               className="mt-8 space-y-5"
             >
+              <div className="flex flex-col items-center gap-4 mb-6">
+                <div className="relative">
+                  <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-default-200/60 transition-all duration-200 hover:border-[#14B8A6]/50 shadow-inner">
+                    {preview ? (
+                      <Image
+                        src={preview}
+                        alt="Preview"
+                        width={112}
+                        height={112}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-default-100 text-3xl font-bold text-foreground/40">
+                        ?
+                      </div>
+                    )}
+                  </div>
+
+                  <label
+                    htmlFor="image"
+                    className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-[#1E3A8A] to-[#14B8A6] text-white shadow-lg transition duration-200 hover:scale-105 active:scale-95"
+                  >
+                    <Camera size={18} />
+                  </label>
+
+                  <input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    {...imageRegister}
+                    onChange={(e) => {
+                      imageRegister.onChange(e);
+
+                      const file = e.target.files?.[0];
+
+                      if (file) {
+                        setPreview(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
+                </div>
+
+                <p className="text-sm font-medium text-foreground/60">
+                  Upload Profile Photo
+                </p>
+              </div>
+
               <div>
                 <label
                   htmlFor="fullName"
-                  className="mb-2 block text-sm font-medium"
+                  className="mb-2 block text-sm font-medium text-foreground/80"
                 >
                   Full Name
                 </label>
@@ -143,7 +190,7 @@ router.push("/");
                   placeholder="Enter your full name"
                   autoComplete="name"
                   {...register("fullName")}
-                  className="w-full rounded-xl border border-default-300 bg-background px-4 py-3 text-sm outline-none transition focus:border-primary"
+                  className="w-full rounded-xl border border-default-300/60 bg-background/50 px-4 py-3 text-sm outline-none transition duration-200 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20"
                 />
 
                 {errors.fullName && (
@@ -156,7 +203,7 @@ router.push("/");
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-sm font-medium"
+                  className="mb-2 block text-sm font-medium text-foreground/80"
                 >
                   Email
                 </label>
@@ -169,7 +216,7 @@ router.push("/");
                   spellCheck={false}
                   autoCapitalize="none"
                   {...register("email")}
-                  className="w-full rounded-xl border border-default-300 bg-background px-4 py-3 text-sm outline-none transition focus:border-primary"
+                  className="w-full rounded-xl border border-default-300/60 bg-background/50 px-4 py-3 text-sm outline-none transition duration-200 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20"
                 />
 
                 {errors.email && (
@@ -182,7 +229,7 @@ router.push("/");
               <div>
                 <label
                   htmlFor="password"
-                  className="mb-2 block text-sm font-medium"
+                  className="mb-2 block text-sm font-medium text-foreground/80"
                 >
                   Password
                 </label>
@@ -194,7 +241,7 @@ router.push("/");
                   autoComplete="new-password"
                   spellCheck={false}
                   {...register("password")}
-                  className="w-full rounded-xl border border-default-300 bg-background px-4 py-3 text-sm outline-none transition focus:border-primary"
+                  className="w-full rounded-xl border border-default-300/60 bg-background/50 px-4 py-3 text-sm outline-none transition duration-200 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20"
                 />
 
                 {errors.password && (
@@ -207,7 +254,7 @@ router.push("/");
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="mb-2 block text-sm font-medium"
+                  className="mb-2 block text-sm font-medium text-foreground/80"
                 >
                   Confirm Password
                 </label>
@@ -219,7 +266,7 @@ router.push("/");
                   autoComplete="new-password"
                   spellCheck={false}
                   {...register("confirmPassword")}
-                  className="w-full rounded-xl border border-default-300 bg-background px-4 py-3 text-sm outline-none transition focus:border-primary"
+                  className="w-full rounded-xl border border-default-300/60 bg-background/50 px-4 py-3 text-sm outline-none transition duration-200 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20"
                 />
 
                 {errors.confirmPassword && (
@@ -229,59 +276,11 @@ router.push("/");
                 )}
               </div>
 
-   <div className="flex flex-col items-center gap-4">
-  <div className="relative">
-    <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-default-200">
-      {preview ? (
-        <Image
-          src={preview}
-          alt="Preview"
-          width={112}
-          height={112}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center bg-default-100 text-3xl font-bold">
-          ?
-        </div>
-      )}
-    </div>
-
-    <label
-      htmlFor="image"
-      className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-lg"
-    >
-      <Camera size={18} />
-    </label>
-
-    <input
-      id="image"
-      type="file"
-      accept="image/*"
-      className="hidden"
-      {...imageRegister}
-      onChange={(e) => {
-        imageRegister.onChange(e);
-
-        const file = e.target.files?.[0];
-
-        if (file) {
-          setPreview(URL.createObjectURL(file));
-        }
-      }}
-    />
-  </div>
-
-  <p className="text-sm text-foreground/60">
-    Upload Profile Photo
-  </p>
-</div>
-
               <div>
-                <label className="flex items-start gap-3 text-sm">
+                <label className="flex items-start gap-3 text-sm cursor-pointer select-none text-foreground/80">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4"
+                    className="mt-1 h-4 w-4 rounded border-default-300 text-[#1E3A8A] focus:ring-[#1E3A8A]/40 accent-[#1E3A8A]"
                     {...register("acceptTerms")}
                   />
 
@@ -289,7 +288,7 @@ router.push("/");
                     I accept the{" "}
                     <Link
                       href="/terms"
-                      className="font-medium text-primary hover:underline"
+                      className="font-medium text-[#1E3A8A] transition duration-200 hover:text-[#14B8A6] hover:underline"
                     >
                       Terms &amp; Conditions
                     </Link>
@@ -306,7 +305,7 @@ router.push("/");
               <Button
                 type="submit"
                 isDisabled={isSubmitting}
-                className="w-full"
+                className="w-full bg-gradient-to-r from-[#1E3A8A] to-[#14B8A6] text-white font-medium shadow-lg shadow-[#1E3A8A]/20 transition-all duration-200 hover:opacity-95 hover:scale-[1.01] active:scale-[0.99]"
               >
                 {isSubmitting ? "Creating Account..." : "Register"}
               </Button>
@@ -317,7 +316,7 @@ router.push("/");
 
               <Link
                 href="/login"
-                className="font-semibold text-primary hover:underline"
+                className="font-semibold text-[#1E3A8A] transition duration-200 hover:text-[#14B8A6] hover:underline"
               >
                 Login
               </Link>
