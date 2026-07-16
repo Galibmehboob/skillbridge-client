@@ -13,6 +13,7 @@ import {
   Plus,
   User,
   Users,
+  Shield,
   X,
 } from "lucide-react";
 
@@ -23,6 +24,8 @@ type SidebarProps = {
 };
 
 function Sidebar({ setOpen }: SidebarProps) {
+   const { data: session } = useSession();
+   console.log(session);
   return (
     <div className="flex h-full flex-col bg-white dark:bg-black">
       <div className="border-b p-6">
@@ -58,6 +61,18 @@ function Sidebar({ setOpen }: SidebarProps) {
           <Users size={18} />
           <span>Collaboration</span>
         </Link>
+        {
+  (session?.user as { role?: string })?.role === "admin" && (
+    <Link
+      href="/admin"
+      onClick={() => setOpen(false)}
+      className="flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-default-100"
+    >
+      <Shield size={18} />
+      <span>Admin Dashboard</span>
+    </Link>
+  )
+}
 
         <Link
   href="/items/add"

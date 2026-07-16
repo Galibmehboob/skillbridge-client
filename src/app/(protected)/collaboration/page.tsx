@@ -84,7 +84,7 @@ export default function CollaborationPage() {
                     </h2>
 
                     <p className="text-sm text-default-500">
-                      {request.sender?.email ?? ""}
+                      {request.sender?.email ?? ""}   
                     </p>
 
                     <p className="mt-2 text-sm">
