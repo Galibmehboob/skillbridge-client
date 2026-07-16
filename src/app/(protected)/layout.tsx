@@ -10,6 +10,7 @@ import {
   Briefcase,
   LayoutDashboard,
   Menu,
+  Plus,
   User,
   Users,
   X,
@@ -57,6 +58,15 @@ function Sidebar({ setOpen }: SidebarProps) {
           <Users size={18} />
           <span>Collaboration</span>
         </Link>
+
+        <Link
+  href="/items/add"
+  onClick={() => setOpen(false)}
+  className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-default-100"
+>
+   <Plus size={18} />
+  <span>Add Skill</span>
+</Link>
 
         <Link
           href="/items/manage"

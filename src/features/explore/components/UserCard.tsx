@@ -4,79 +4,95 @@ import Link from "next/link";
 
 import {
   Avatar,
-  AvatarFallback,
-  AvatarImage,
   Button,
+  Card,
 } from "@heroui/react";
 
-type User = {
-  _id: string;
-  name: string;
-  image?: string;
-  bio?: string;
-  location?: string;
-  skills?: string[];
+import type { User } from "@/features/auth/types/user";
+
+type Props = {
+  user: User;
 };
 
 export default function UserCard({
   user,
-}: {
-  user: User;
-}) {
+}: Props) {
   return (
-    <div className="rounded-3xl border p-6 shadow-sm transition hover:shadow-lg">
+    <Card>
+      <Card.Content className="p-6">
 
-      <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center text-center">
 
-        <Avatar className="h-20 w-20">
+          <Avatar size="lg">
+            {user.image ? (
+              <Avatar.Image
+                src={user.image}
+                alt={user.name}
+              />
+            ) : null}
 
-          {user.image && (
-            <AvatarImage
-              src={user.image}
-            />
-          )}
+            <Avatar.Fallback>
+              {user.name
+                ?.charAt(0)
+                .toUpperCase()}
+            </Avatar.Fallback>
+          </Avatar>
 
-          <AvatarFallback>
-            {user.name[0]}
-          </AvatarFallback>
+          <h2 className="mt-4 text-xl font-semibold">
+            {user.name}
+          </h2>
 
-        </Avatar>
+          <p className="mt-2 line-clamp-2 text-sm text-default-500">
+            {user.bio ||
+              "No bio added yet."}
+          </p>
 
-        <h2 className="mt-4 text-lg font-bold">
-          {user.name}
-        </h2>
+          <div className="mt-5 flex w-full flex-col gap-3 rounded-xl border p-4">
 
-        <p className="mt-2 text-center text-sm text-foreground/60">
-          {user.bio || "No bio yet."}
-        </p>
+            <div className="flex items-center justify-between">
 
-        <p className="mt-3 text-sm">
-          📍 {user.location || "Unknown"}
-        </p>
+              <span className="text-sm text-default-500">
+                Location
+              </span>
 
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <span className="text-sm font-medium">
+                {user.location ||
+                  "Not provided"}
+              </span>
 
-          {user.skills?.slice(0, 3).map((skill) => (
-            <span
-              key={skill}
-              className="rounded-full bg-primary px-3 py-1 text-xs text-white"
+            </div>
+
+            <div className="flex items-center justify-between">
+
+              <span className="text-sm text-default-500">
+                Email
+              </span>
+
+              <span className="max-w-[180px] truncate text-sm font-medium">
+                {user.email}
+              </span>
+
+            </div>
+
+          </div>
+
+          <div className="mt-6 w-full">
+            <Link
+              href={`/users/${user._id}`}
+              className="block w-full"
             >
-              {skill}
-            </span>
-          ))}
+              <Button
+                className="w-full"
+                variant="secondary"
+              >
+                View Profile
+              </Button>
+            </Link>
+          </div>
 
         </div>
 
-        <Link
-          href={`/users/${user._id}`}
-          className="mt-6 w-full"
-        >
-          <Button className="w-full">
-            View Profile
-          </Button>
-        </Link>
-
-      </div>
-    </div>
+      </Card.Content>
+    </Card>
   );
 }

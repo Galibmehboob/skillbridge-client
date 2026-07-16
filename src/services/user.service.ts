@@ -27,6 +27,8 @@ export const getMyProfile = async () => {
 
 
 
+
+
 export const updateMyProfile = async (
   payload: UpdateProfilePayload
 ) => {
@@ -92,3 +94,4 @@ export const getUser = async (id: string) => {
 
   return data.data;
 };
+

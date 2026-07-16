@@ -76,3 +76,55 @@ export const updateRequest = async (
 
   return data;
 };
+
+export const acceptRequest = async (
+  id: string
+) => {
+  const res = await fetch(
+    `${BASE_URL}/api/collaborations/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: "accepted",
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message);
+  }
+
+  return data;
+};
+
+export const rejectRequest = async (
+  id: string
+) => {
+  const res = await fetch(
+    `${BASE_URL}/api/collaborations/${id}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: "rejected",
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message);
+  }
+
+  return data;
+};

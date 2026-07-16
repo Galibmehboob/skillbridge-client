@@ -20,9 +20,11 @@ export default function CollaborationPage() {
           Collaboration Requests
         </h1>
 
-        <Card className="p-6">
-          Loading...
-        </Card>
+        <Card>
+  <Card.Content className="p-6">
+    Loading...
+  </Card.Content>
+</Card>
       </div>
     );
   }
@@ -64,25 +66,25 @@ export default function CollaborationPage() {
       </div>
 
       {requests.length === 0 ? (
-        <Card className="p-6 text-center">
-          <p>No collaboration requests found.</p>
-        </Card>
+       <Card>
+  <Card.Content className="p-6 text-center">
+    <p>No collaboration requests found.</p>
+  </Card.Content>
+</Card>
       ) : (
         <div className="space-y-4">
           {requests.map(
             (request: CollaborationRequest) => (
-              <Card
-                key={request._id}
-                className="p-5"
-              >
+             <Card key={request._id}>
+  <Card.Content className="p-5">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div>
                     <h2 className="text-lg font-semibold">
-                      {request.sender.name}
+                      {request.sender?.name ?? "Unknown User"}  
                     </h2>
 
                     <p className="text-sm text-default-500">
-                      {request.sender.email}
+                      {request.sender?.email ?? ""}
                     </p>
 
                     <p className="mt-2 text-sm">
@@ -94,9 +96,12 @@ export default function CollaborationPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button
-  variant="primary"
-  isDisabled={isUpdating}
+          <Button
+  variant="secondary"
+  isDisabled={
+    isUpdating ||
+    request.status !== "pending"
+  }
   onPress={() =>
     handleUpdate(
       request._id,
@@ -107,9 +112,12 @@ export default function CollaborationPage() {
   Accept
 </Button>
 
-                  <Button
-  variant="danger"
-  isDisabled={isUpdating}
+<Button
+  variant="danger-soft"
+  isDisabled={
+    isUpdating ||
+    request.status !== "pending"
+  }
   onPress={() =>
     handleUpdate(
       request._id,
@@ -121,7 +129,8 @@ export default function CollaborationPage() {
 </Button>
                   </div>
                 </div>
-              </Card>
+              </Card.Content>
+</Card>
             )
           )}
         </div>

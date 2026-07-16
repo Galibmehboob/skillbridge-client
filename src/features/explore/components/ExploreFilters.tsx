@@ -1,14 +1,33 @@
 "use client";
 
-import { Input } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Label,
+  ListBox,
+  Select,
+} from "@heroui/react";
 
 type Props = {
   search: string;
-  setSearch: (v: string) => void;
+  setSearch: (value: string) => void;
 
   skill: string;
-  setSkill: (v: string) => void;
+  setSkill: (value: string) => void;
 };
+
+const skillOptions = [
+  "React",
+  "Next.js",
+  "TypeScript",
+  "JavaScript",
+  "Node.js",
+  "Express.js",
+  "MongoDB",
+  "Firebase",
+  "Tailwind CSS",
+  "UI/UX",
+];
 
 export default function ExploreFilters({
   search,
@@ -17,23 +36,91 @@ export default function ExploreFilters({
   setSkill,
 }: Props) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="rounded-3xl border p-6">
 
-      <Input
-        value={search}
-        placeholder="Search users..."
-        onChange={(e) =>
-          setSearch(e.target.value)
-        }
-      />
+      <div className="grid gap-5 lg:grid-cols-3">
 
-      <Input
-        value={skill}
-        placeholder="Skill..."
-        onChange={(e) =>
-          setSkill(e.target.value)
-        }
-      />
+        {/* Search */}
+
+        <div className="space-y-2">
+
+          <Label>Search Developer</Label>
+
+          <Input
+            value={search}
+            placeholder="Name..."
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+          />
+
+        </div>
+
+        {/* Skill */}
+
+        <div className="space-y-2">
+
+          <Label>Skill</Label>
+
+          <Select
+            placeholder="Select Skill"
+            selectedKey={
+              skill || undefined
+            }
+          onSelectionChange={(key) => {
+  setSkill(key ? String(key) : "");
+}}
+          >
+            <Select.Trigger>
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+
+            <Select.Popover>
+
+              <ListBox>
+
+                {skillOptions.map(
+                  (item) => (
+                    <ListBox.Item
+                      key={item}
+                      id={item}
+                      textValue={item}
+                    >
+                      {item}
+
+                      <ListBox.ItemIndicator />
+
+                    </ListBox.Item>
+                  )
+                )}
+
+              </ListBox>
+
+            </Select.Popover>
+
+          </Select>
+
+        </div>
+
+        {/* Clear */}
+
+        <div className="flex items-end">
+
+          <Button
+            variant="outline"
+            className="w-full"
+            onPress={() => {
+              setSearch("");
+              setSkill("");
+            }}
+          >
+            Clear Filters
+          </Button>
+
+        </div>
+
+      </div>
 
     </div>
   );
